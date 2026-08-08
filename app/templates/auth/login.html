@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}
+Iniciar sesión
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Marca Segura</h1>
+
+    <form method="POST">
+
+        <input
+            type="email"
+            name="email"
+            placeholder="Correo"
+        >
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Contraseña"
+        >
+
+        <button type="submit">
+            Iniciar sesión
+        </button>
+
+    </form>
+</div>
+
+{% endblock %}

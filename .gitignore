@@ -1,0 +1,145 @@
+# =========================
+# Python
+# =========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Compiled files
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+
+# =========================
+# Virtual Environment
+# =========================
+
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+
+# =========================
+# Environment Variables
+# =========================
+
+.env
+.env.*
+!.env.example
+
+
+# =========================
+# Flask
+# =========================
+
+instance/
+
+# Flask development files
+.webassets-cache/
+
+# Flask CLI
+.flaskenv
+
+
+# =========================
+# Database
+# =========================
+
+*.db
+*.sqlite
+*.sqlite3
+
+# Si quieres versionar una base SQLite específica,
+# puedes quitar las líneas anteriores.
+
+
+# =========================
+# Testing
+# =========================
+
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.cache
+
+
+# =========================
+# Type checking / Linters
+# =========================
+
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+
+# =========================
+# IDEs
+# =========================
+
+.vscode/
+.idea/
+
+# PyCharm
+*.iml
+
+# VS Code local history
+.history/
+
+
+# =========================
+# Operating System
+# =========================
+
+# Linux
+*~
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+
+# =========================
+# Logs
+# =========================
+
+*.log
+logs/
+
+
+# =========================
+# Local configuration
+# =========================
+
+*.local
