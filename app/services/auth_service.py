@@ -1,10 +1,10 @@
-from flask_jwt_extended import create_access_token
 from werkzeug.security import check_password_hash
 
 from app.models.user import User
 
 
 def authenticate_user(email, password):
+
     user = User.query.filter_by(email=email).first()
 
     if user is None:
@@ -16,19 +16,4 @@ def authenticate_user(email, password):
     if not check_password_hash(user.password_hash, password):
         return None
 
-    token = create_access_token(
-        identity=str(user.id),
-        additional_claims={
-            "role": user.role,
-        }
-    )
-
-    return {
-        "access_token": token,
-        "user": {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-            "role": user.role,
-        }
-    }
+    return {"id": user.id, "name": user.name, "email": user.email, "role": user.role}

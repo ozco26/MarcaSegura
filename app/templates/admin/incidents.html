@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Incidentes{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1>Incidentes Registrados</h1>
+    <table class="table table-danger">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Descripción</th>
+                <th>Severidad</th>
+                <th>Fecha/Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for incident in incidents %}
+            <tr>
+                <td>{{ incident.user.name }}</td>
+                <td>{{ incident.description }}</td>
+                <td>{{ incident.severity }}</td>
+                <td>{{ incident.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('web_auth.dashboard') }}" class="btn btn-secondary">Volver</a>
+</div>
+{% endblock %}

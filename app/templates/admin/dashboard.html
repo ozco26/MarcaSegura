@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Panel de Administración</h1>
+
+    <!-- Tarjetas de acceso rápido -->
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Usuarios</h5>
+                    <p class="card-text">Gestiona los usuarios: crear, editar, desactivar.</p>
+                    <a href="{{ url_for('users.users') }}" class="btn btn-light">Ir a usuarios</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body">
+                    <h5 class="card-title">🕒 Auditoría de marcas</h5>
+                    <p class="card-text">Registros de entrada y salida de todos los empleados.</p>
+                    <a href="{{ url_for('audit.admin_genral') }}" class="btn btn-light">Ver auditoría</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-body">
+                    <h5 class="card-title">⚠️ Incidentes</h5>
+                    <p class="card-text">Eventos anormales: accesos fuera de horario, intentos fallidos.</p>
+                    <a href="{{ url_for('audit.admin_incidents') }}" class="btn btn-light">Ver incidentes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Usuarios</h5>
+                    <p class="card-text display-6">{{ total_users }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Activos</h5>
+                    <p class="card-text display-6">{{ active_users }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Marcas hoy</h5>
+                    <p class="card-text display-6">{{ today_marks }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Incidentes hoy</h5>
+                    <p class="card-text display-6">{{ today_incidents }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Auditoría de Marcas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1>Auditoría de Marcas</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Tipo</th>
+                <th>Fecha/Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mark in marks %}
+            <tr>
+                <td>{{ mark.user.name }}</td>
+                <td>{{ mark.type }}</td>
+                <td>{{ mark.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('web_auth.dashboard') }}" class="btn btn-secondary">Volver</a>
+</div>
+{% endblock %}

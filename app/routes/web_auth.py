@@ -1,12 +1,26 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from datetime import datetime
 
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+    set_access_cookies,
+)
+from werkzeug.security import generate_password_hash
+
+from app.config.extensions import db
+from app.models.user import User
 from app.services.auth_service import authenticate_user
+from app.services.decoradors import admin_required
 
 web_auth_bp = Blueprint("web_auth", __name__)
 
 
 @web_auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+
     if request.method == "GET":
         return render_template("auth/login.html")
 
@@ -15,31 +29,50 @@ def login():
 
     if not email or not password:
         flash("El correo y la contraseña son obligatorios.", "danger")
+
         return render_template("auth/login.html")
 
-    result = authenticate_user(email, password)
+    user = authenticate_user(email, password)
 
-    if result is None:
+    if user is None:
         flash("Credenciales inválidas.", "danger")
+
         return render_template("auth/login.html")
 
-    user = result["user"]
+    access_token = create_access_token(
+        identity=str(user["id"]), additional_claims={"role": user["role"]}
+    )
 
-    session.clear()
+    response = redirect(url_for("web_auth.dashboard"))
 
-    session["user_id"] = user["id"]
-    session["name"] = user["name"]
-    session["email"] = user["email"]
-    session["role"] = user["role"]
+    set_access_cookies(response, access_token)
 
-    return redirect(url_for("web_auth.dashboard"))
+    return response
+
 
 @web_auth_bp.route("/dashboard")
+@jwt_required()
 def dashboard():
-    if "user_id" not in session:
-        return redirect(url_for("web_auth.login"))
+    user_id = get_jwt_identity()
+    claims = get_jwt()
+    role = claims["role"]
 
-    return render_template(
-        "employee/dashboard.html",
-        user=session
-    )
+    # Estadísticas (ajusta según tus modelos)
+    total_users = User.query.count()
+    active_users = User.query.filter_by(status=True).count()
+    # Por ahora, valores de ejemplo (luego con modelos reales)
+    today_marks = 0
+    today_incidents = 0
+
+    if role == "admin":
+        return render_template(
+            "admin/dashboard.html",
+            user_id=user_id,
+            role=role,
+            total_users=total_users,
+            active_users=active_users,
+            today_marks=today_marks,
+            today_incidents=today_incidents,
+        )
+    else:
+        return render_template("employee/dashboard.html", user_id=user_id, role=role)

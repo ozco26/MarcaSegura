@@ -1,33 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}
-Iniciar sesión
-{% endblock %}
+{% block title %}Iniciar sesión{% endblock %}
 
 {% block content %}
-
-<div class="container">
-    <h1>Marca Segura</h1>
-
-    <form method="POST">
-
-        <input
-            type="email"
-            name="email"
-            placeholder="Correo"
-        >
-
-        <input
-            type="password"
-            name="password"
-            placeholder="Contraseña"
-        >
-
-        <button type="submit">
-            Iniciar sesión
-        </button>
-
-    </form>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card p-4 shadow" style="width: 100%; max-width: 400px;">
+        <h1 class="text-center mb-4">Marca Segura</h1>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="correo@ejemplo.com" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
 </div>
-
 {% endblock %}
