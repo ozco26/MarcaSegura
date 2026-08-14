@@ -4,25 +4,108 @@
 
 {% block content %}
 <div class="container py-4">
-    <h1>Auditoría de Marcas</h1>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Usuario</th>
-                <th>Tipo</th>
-                <th>Fecha/Hora</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for mark in marks %}
-            <tr>
-                <td>{{ mark.user.name }}</td>
-                <td>{{ mark.type }}</td>
-                <td>{{ mark.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <a href="{{ url_for('web_auth.dashboard') }}" class="btn btn-secondary">Volver</a>
+
+    <h1 class="mb-4">Auditoría de Marcas</h1>
+
+    <form method="GET" class="row g-3 mb-4">
+
+        <div class="col-md-6">
+            <label for="user_id" class="form-label">
+                Filtrar por usuario
+            </label>
+
+            <select
+                name="user_id"
+                id="user_id"
+                class="form-select"
+            >
+                <option value="">Todos los usuarios</option>
+
+                {% for user in users %}
+                    <option
+                        value="{{ user.id }}"
+                        {% if selected_user_id == user.id|string %}selected{% endif %}
+                    >
+                        {{ user.name }} - {{ user.email }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-6 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary">
+                Filtrar
+            </button>
+
+            <a
+                href="{{ url_for('audit.admin_genral') }}"
+                class="btn btn-secondary"
+            >
+                Limpiar
+            </a>
+        </div>
+
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Tipo</th>
+                    <th>Fecha/Hora</th>
+                    <th>Ubicación</th>
+                    <th>Precisión (m)</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for mark in marks %}
+                <tr>
+                    <td>{{ mark.user.name }}</td>
+
+                    <td>
+                        {% if mark.type == "entry" %}
+                            <span class="badge bg-success">
+                                Entrada
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                Salida
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ mark.timestamp.strftime('%d/%m/%Y %H:%M') }}
+                    </td>
+
+                    <td>
+                        {{ mark.latitude }}, {{ mark.longitude }}
+                    </td>
+
+                    <td>
+                        {{ mark.accuracy }}
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        No hay marcas registradas.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a
+        href="{{ url_for('web_auth.dashboard') }}"
+        class="btn btn-secondary"
+    >
+        Volver
+    </a>
+
 </div>
 {% endblock %}

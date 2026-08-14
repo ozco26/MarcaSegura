@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from app import models  ##para que jale las migraciones
 from app.config.config import Config
 from app.config.extensions import db, jwt, migrate
+from app.routes.attendance import attendance_bp
 from app.routes.audit import audit_bp
 from app.routes.users import users_bp
 from app.routes.web_auth import web_auth_bp
@@ -21,6 +22,7 @@ def create_app(config_class=Config):
     app.register_blueprint(web_auth_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(audit_bp)
+    app.register_blueprint(attendance_bp)
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):

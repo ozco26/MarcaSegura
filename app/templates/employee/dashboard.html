@@ -1,10 +1,655 @@
 {% extends "base.html" %}
 
 {% block title %}
-Iniciar sesión
+Dashboard - Marca Segura
 {% endblock %}
+
 
 {% block content %}
 
-employee
+<nav class="navbar navbar-dark bg-dark shadow-sm">
+
+    <div class="container">
+
+        <a
+            class="navbar-brand fw-semibold"
+            href="{{ url_for('web_auth.dashboard') }}"
+        >
+            <i class="bi bi-shield-check me-2"></i>
+            Marca Segura
+        </a>
+
+        <div class="d-flex align-items-center gap-3">
+
+            <span class="text-white">
+                <i class="bi bi-person-circle me-1"></i>
+                {{ current_user.name }}
+            </span>
+
+            <span class="badge text-bg-primary">
+                Empleado
+            </span>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<main class="container py-5">
+
+    <!-- Encabezado -->
+
+    <div class="mb-5">
+
+        <h1 class="fw-bold mb-2">
+            Mi asistencia
+        </h1>
+
+        <p class="text-muted mb-0">
+            Registra tu entrada o salida y consulta tu historial.
+        </p>
+
+    </div>
+
+
+    <!-- Registro de asistencia -->
+
+    <section class="mb-5">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-4">
+
+                <div class="row align-items-center">
+
+                    <div class="col-md-8">
+
+                        <div class="d-flex align-items-center mb-3">
+
+                            <div class="bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+
+                                <i class="bi bi-fingerprint fs-2 text-primary"></i>
+
+                            </div>
+
+                            <div>
+
+                                <h4 class="mb-1">
+                                    Registrar asistencia
+                                </h4>
+
+                                <p class="text-muted mb-0">
+                                    La marca registrará tu ubicación actual
+                                    y el dispositivo utilizado.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="location-status"
+                            class="alert alert-secondary mb-0"
+                        >
+
+                            <i class="bi bi-geo-alt me-2"></i>
+
+                            La ubicación se solicitará al registrar la marca.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4 text-md-end mt-4 mt-md-0">
+
+                        <button
+                            id="mark-button"
+                            type="button"
+                            class="btn btn-primary btn-lg px-4"
+                        >
+
+                            <i class="bi bi-fingerprint me-2"></i>
+
+                            Registrar marca
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Historial -->
+
+    <section>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h4 class="fw-semibold mb-1">
+                    Historial de asistencia
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Registro de tus últimas marcas.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th class="px-4">
+                                    Fecha
+                                </th>
+
+                                <th>
+                                    Tipo
+                                </th>
+
+                                <th>
+                                    Hora
+                                </th>
+
+                                
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for mark in marks %}
+
+                            <tr>
+
+                                <td class="px-4">
+                                    {{ mark.timestamp.strftime('%d/%m/%Y') }}
+                                </td>
+
+
+                                <td>
+
+                                    {% if mark.type == 'entry' %}
+
+                                        <span class="badge text-bg-success">
+
+                                            <i class="bi bi-box-arrow-in-right me-1"></i>
+
+                                            Entrada
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge text-bg-secondary">
+
+                                            <i class="bi bi-box-arrow-right me-1"></i>
+
+                                            Salida
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+                                    {{ mark.timestamp.strftime('%H:%M:%S') }}
+                                </td>
+
+
+                                
+                            </tr>
+
+
+                            {% else %}
+
+                            <tr>
+
+                                <td
+                                    colspan="4"
+                                    class="text-center text-muted py-5"
+                                >
+
+                                    <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+
+                                    No tienes marcas registradas.
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+    /*
+     * =====================================================
+     * DEVICE UUID
+     * =====================================================
+     *
+     * Cada navegador genera un UUID una única vez.
+     * Este identificador permanece almacenado en localStorage.
+     */
+
+    function getDeviceUUID() {
+
+        let deviceUUID = localStorage.getItem("device_uuid");
+
+        if (!deviceUUID) {
+
+            deviceUUID = crypto.randomUUID();
+
+            localStorage.setItem(
+                "device_uuid",
+                deviceUUID
+            );
+        }
+
+        return deviceUUID;
+    }
+
+
+    /*
+     * =====================================================
+     * OBTENER UBICACIÓN
+     * =====================================================
+     */
+
+    function getLocation() {
+
+        return new Promise((resolve, reject) => {
+
+            if (!navigator.geolocation) {
+
+                reject(
+                    new Error(
+                        "Este navegador no soporta geolocalización."
+                    )
+                );
+
+                return;
+            }
+
+
+            navigator.geolocation.getCurrentPosition(
+
+                (position) => {
+
+                    resolve({
+
+                        latitude:
+                            position.coords.latitude,
+
+                        longitude:
+                            position.coords.longitude,
+
+                        accuracy:
+                            position.coords.accuracy
+
+                    });
+
+                },
+
+                (error) => {
+
+                    reject(error);
+
+                },
+
+                {
+
+                    enableHighAccuracy: true,
+
+                    timeout: 10000,
+
+                    maximumAge: 0
+
+                }
+            );
+
+        });
+    }
+
+
+    /*
+     * =====================================================
+     * ELEMENTOS
+     * =====================================================
+     */
+
+    const markButton =
+        document.getElementById("mark-button");
+
+    const locationStatus =
+        document.getElementById("location-status");
+
+
+    /*
+     * =====================================================
+     * ESTADO INICIAL
+     * =====================================================
+     */
+
+    if (markButton && locationStatus) {
+
+
+        /*
+         * =================================================
+         * REGISTRAR MARCA
+         * =================================================
+         */
+
+        markButton.addEventListener(
+            "click",
+            async function() {
+
+                markButton.disabled = true;
+
+
+                locationStatus.className =
+                    "alert alert-info mb-0";
+
+                locationStatus.innerHTML = `
+
+                    <span
+                        class="spinner-border spinner-border-sm me-2"
+                        role="status"
+                    ></span>
+
+                    Obteniendo ubicación...
+
+                `;
+
+
+                try {
+
+
+                    /*
+                     * Obtener ubicación
+                     */
+
+                    const location =
+                        await getLocation();
+
+
+                    /*
+                     * Obtener UUID
+                     */
+
+                    const deviceUUID =
+                        getDeviceUUID();
+
+
+                    /*
+                     * Mostrar precisión
+
+                     */
+
+                    locationStatus.className =
+                        "alert alert-success mb-0";
+
+                    locationStatus.innerHTML = `
+
+                        <i class="bi bi-check-circle me-2"></i>
+
+                        Ubicación obtenida.
+
+                        Precisión aproximada:
+
+                        <strong>
+                            ${Math.round(location.accuracy)} metros
+                        </strong>
+
+                    `;
+
+
+                    /*
+                     * Enviar información al backend
+                     */
+
+
+
+                    const csrfToken = getCookie("csrf_access_token");
+
+                    
+                    const response = await fetch("/attendance/mark", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": csrfToken
+                        },
+                        body: JSON.stringify({
+                            device_uuid: deviceUUID,
+                            latitude: location.latitude,
+                            longitude: location.longitude,
+                            accuracy: location.accuracy
+                        })
+                    });
+
+
+                    /*
+                     * Intentar obtener JSON
+                     */
+
+                    let data = {};
+
+                    try {
+
+                        data = await response.json();
+
+                    } catch (jsonError) {
+
+                        throw new Error(
+                            "El servidor devolvió una respuesta inválida."
+                        );
+
+                    }
+
+
+                    /*
+                     * Error HTTP
+                     */
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.message ||
+                            "No se pudo registrar la marca."
+                        );
+
+                    }
+
+
+                    /*
+                     * Marca registrada
+                     */
+
+                    locationStatus.className =
+                        "alert alert-success mb-0";
+
+                    locationStatus.innerHTML = `
+
+                        <i class="bi bi-check-circle me-2"></i>
+
+                        ${data.message ||
+                        "Marca registrada correctamente."}
+
+                    `;
+
+
+                    /*
+                     * Recargar historial
+                     */
+
+                    setTimeout(
+                        () => {
+
+                            window.location.reload();
+
+                        },
+                        3000
+                    );
+
+                }
+
+
+                /*
+                 * =================================================
+                 * ERRORES
+                 * =================================================
+                 */
+
+                catch (error) {
+
+                    console.error(error);
+
+
+                    locationStatus.className =
+                        "alert alert-danger mb-0";
+
+
+                    /*
+                     * Permiso rechazado
+                     */
+
+                    if (error.code === 1) {
+
+                        locationStatus.innerHTML = `
+
+                            <i class="bi bi-geo-alt-fill me-2"></i>
+
+                            Debes permitir el acceso a tu ubicación
+                            para registrar una marca.
+
+                        `;
+
+                    }
+
+
+                    /*
+                     * Ubicación no disponible
+                     */
+
+                    else if (error.code === 2) {
+
+                        locationStatus.innerHTML = `
+
+                            <i class="bi bi-exclamation-circle me-2"></i>
+
+                            No fue posible determinar tu ubicación.
+
+                        `;
+
+                    }
+
+
+                    /*
+                     * Timeout
+                     */
+
+                    else if (error.code === 3) {
+
+                        locationStatus.innerHTML = `
+
+                            <i class="bi bi-clock me-2"></i>
+
+                            La obtención de la ubicación tardó demasiado.
+
+                        `;
+
+                    }
+
+
+                    /*
+                     * Error general
+                     */
+
+                    else {
+
+                        locationStatus.innerHTML = `
+
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+
+                            ${error.message}
+
+                        `;
+
+                    }
+
+                }
+
+
+                finally {
+
+                    markButton.disabled = false;
+
+                }
+
+            }
+        );
+
+    }
+
+function getCookie(name) {
+    const cookies = document.cookie.split(";");
+
+    for (const cookie of cookies) {
+        const [key, value] = cookie.trim().split("=");
+
+        if (key === name) {
+            return decodeURIComponent(value);
+        }
+    }
+
+    return null;
+}
+
+</script>
+
 {% endblock %}

@@ -1,78 +1,378 @@
 {% extends "base.html" %}
 
-{% block title %}Panel de Administración{% endblock %}
+{% block title %}
+Panel de Administración - Marca Segura
+{% endblock %}
+
 
 {% block content %}
-<div class="container py-4">
-    <h1 class="mb-4">Panel de Administración</h1>
 
-    <!-- Tarjetas de acceso rápido -->
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-primary h-100">
-                <div class="card-body">
-                    <h5 class="card-title">👥 Usuarios</h5>
-                    <p class="card-text">Gestiona los usuarios: crear, editar, desactivar.</p>
-                    <a href="{{ url_for('users.users') }}" class="btn btn-light">Ir a usuarios</a>
-                </div>
-            </div>
-        </div>
+<!-- Navbar -->
 
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-success h-100">
-                <div class="card-body">
-                    <h5 class="card-title">🕒 Auditoría de marcas</h5>
-                    <p class="card-text">Registros de entrada y salida de todos los empleados.</p>
-                    <a href="{{ url_for('audit.admin_genral') }}" class="btn btn-light">Ver auditoría</a>
-                </div>
-            </div>
-        </div>
+<nav class="navbar navbar-dark bg-dark shadow-sm">
 
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-danger h-100">
-                <div class="card-body">
-                    <h5 class="card-title">⚠️ Incidentes</h5>
-                    <p class="card-text">Eventos anormales: accesos fuera de horario, intentos fallidos.</p>
-                    <a href="{{ url_for('audit.admin_incidents') }}" class="btn btn-light">Ver incidentes</a>
-                </div>
-            </div>
-        </div>
+    <div class="container">
+
+        <a
+            class="navbar-brand fw-semibold"
+            href="#"
+        >
+            <i class="bi bi-shield-check me-2"></i>
+            Marca Segura
+        </a>
+
+
+        <span class="text-white">
+            <i class="bi bi-person-circle me-1"></i>
+            Administrador
+        </span>
+
     </div>
 
-    <!-- Estadísticas rápidas -->
-    <div class="row mt-4">
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Usuarios</h5>
-                    <p class="card-text display-6">{{ total_users }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark">
-                <div class="card-body">
-                    <h5 class="card-title">Activos</h5>
-                    <p class="card-text display-6">{{ active_users }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-secondary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Marcas hoy</h5>
-                    <p class="card-text display-6">{{ today_marks }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-danger text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Incidentes hoy</h5>
-                    <p class="card-text display-6">{{ today_incidents }}</p>
-                </div>
-            </div>
-        </div>
+</nav>
+
+
+<!-- Contenido -->
+
+<main class="container py-5">
+
+
+    <!-- Encabezado -->
+
+    <div class="mb-5">
+
+        <h1 class="fw-bold mb-2">
+            Panel de Administración
+        </h1>
+
+        <p class="text-muted mb-0">
+            Gestiona usuarios, asistencia, auditoría e incidencias.
+        </p>
+
     </div>
-</div>
+
+
+    <!-- Accesos rápidos -->
+
+    <section class="mb-5">
+
+        <h4 class="fw-semibold mb-4">
+            Accesos rápidos
+        </h4>
+
+
+        <div class="row g-4">
+
+
+            <!-- Usuarios -->
+
+            <div class="col-md-4">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex align-items-center mb-3">
+
+                            <div class="bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+
+                                <i class="bi bi-people fs-3 text-primary"></i>
+
+                            </div>
+
+                            <h5 class="mb-0">
+                                Usuarios
+                            </h5>
+
+                        </div>
+
+
+                        <p class="text-muted">
+
+                            Gestiona los usuarios del sistema,
+                            incluyendo creación, edición y desactivación.
+
+                        </p>
+
+
+                        <a
+                            href="{{ url_for('users.users') }}"
+                            class="btn btn-primary"
+                        >
+
+                            <i class="bi bi-arrow-right me-1"></i>
+
+                            Ir a usuarios
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Auditoría -->
+
+            <div class="col-md-4">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex align-items-center mb-3">
+
+                            <div class="bg-success bg-opacity-10 rounded-3 p-3 me-3">
+
+                                <i class="bi bi-clock-history fs-3 text-success"></i>
+
+                            </div>
+
+                            <h5 class="mb-0">
+                                Auditoría de marcas
+                            </h5>
+
+                        </div>
+
+
+                        <p class="text-muted">
+
+                            Consulta los registros de entrada y salida
+                            de todos los empleados.
+
+                        </p>
+
+
+                        <a
+                            href="{{ url_for('audit.admin_genral') }}"
+                            class="btn btn-success"
+                        >
+
+                            <i class="bi bi-search me-1"></i>
+
+                            Ver auditoría
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Incidentes -->
+
+            <div class="col-md-4">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex align-items-center mb-3">
+
+                            <div class="bg-danger bg-opacity-10 rounded-3 p-3 me-3">
+
+                                <i class="bi bi-exclamation-triangle fs-3 text-danger"></i>
+
+                            </div>
+
+                            <h5 class="mb-0">
+                                Incidentes
+                            </h5>
+
+                        </div>
+
+
+                        <p class="text-muted">
+
+                            Revisa eventos anormales y situaciones
+                            detectadas por el sistema.
+
+                        </p>
+
+
+                        <a
+                            href="{{ url_for('audit.admin_incidents') }}"
+                            class="btn btn-danger"
+                        >
+
+                            <i class="bi bi-exclamation-circle me-1"></i>
+
+                            Ver incidentes
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- Estadísticas -->
+
+    <section>
+
+        <div class="mb-4">
+
+            <h4 class="fw-semibold mb-1">
+                Resumen
+            </h4>
+
+            <p class="text-muted mb-0">
+                Estado general del sistema.
+            </p>
+
+        </div>
+
+
+        <div class="row g-4">
+
+
+            <!-- Usuarios -->
+
+            <div class="col-6 col-lg-3">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex justify-content-between align-items-start">
+
+                            <div>
+
+                                <p class="text-muted mb-2">
+                                    Total usuarios
+                                </p>
+
+                                <h2 class="fw-bold mb-0">
+                                    {{ total_users }}
+                                </h2>
+
+                            </div>
+
+                            <i class="bi bi-people fs-3 text-primary"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Activos -->
+
+            <div class="col-6 col-lg-3">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex justify-content-between align-items-start">
+
+                            <div>
+
+                                <p class="text-muted mb-2">
+                                    Usuarios activos
+                                </p>
+
+                                <h2 class="fw-bold mb-0">
+                                    {{ active_users }}
+                                </h2>
+
+                            </div>
+
+                            <i class="bi bi-person-check fs-3 text-success"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Marcas -->
+
+            <div class="col-6 col-lg-3">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex justify-content-between align-items-start">
+
+                            <div>
+
+                                <p class="text-muted mb-2">
+                                    Marcas hoy
+                                </p>
+
+                                <h2 class="fw-bold mb-0">
+                                    {{ today_marks }}
+                                </h2>
+
+                            </div>
+
+                            <i class="bi bi-fingerprint fs-3 text-secondary"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Incidentes -->
+
+            <div class="col-6 col-lg-3">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex justify-content-between align-items-start">
+
+                            <div>
+
+                                <p class="text-muted mb-2">
+                                    Incidentes hoy
+                                </p>
+
+                                <h2 class="fw-bold mb-0 text-danger">
+                                    {{ today_incidents }}
+                                </h2>
+
+                            </div>
+
+                            <i class="bi bi-shield-exclamation fs-3 text-danger"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+</main>
+
 {% endblock %}

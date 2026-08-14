@@ -11,6 +11,7 @@ from flask_jwt_extended import (
 from werkzeug.security import generate_password_hash
 
 from app.config.extensions import db
+from app.models.mark import Mark
 from app.models.user import User
 from app.services.auth_service import authenticate_user
 from app.services.decoradors import admin_required
@@ -75,4 +76,18 @@ def dashboard():
             today_incidents=today_incidents,
         )
     else:
-        return render_template("employee/dashboard.html", user_id=user_id, role=role)
+        claims = get_jwt()
+        csrf_token = claims.get("csrf", "")
+        user = User.query.get(user_id)
+        marks = (
+            Mark.query.filter_by(user_id=user.id).order_by(Mark.timestamp.desc()).all()
+        )
+
+        return render_template(
+            "employee/dashboard.html",
+            csrf_token=csrf_token,
+            current_user=user,
+            marks=marks,
+            user_id=user_id,
+            role=role,
+        )
