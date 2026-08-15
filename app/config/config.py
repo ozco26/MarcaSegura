@@ -16,7 +16,7 @@ class Config:
     JWT_TOKEN_LOCATION = ["cookies"]
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 
-    JWT_COOKIE_SECURE = False
+    JWT_COOKIE_SECURE = os.getenv("JWT_COOKIE_SECURE", "False").lower() == "true"    
     JWT_COOKIE_HTTPONLY = True
     JWT_COOKIE_SAMESITE = "Lax"
 
