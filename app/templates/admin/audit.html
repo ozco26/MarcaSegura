@@ -47,6 +47,165 @@
 
     </form>
 
+    <!-- ===================================================== -->
+<!-- DISPOSITIVOS -->
+<!-- ===================================================== -->
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-header">
+        <h2 class="h5 mb-0">
+            Dispositivos
+        </h2>
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-striped align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Dispositivo</th>
+                        <th>Estado</th>
+                        <th>Primer uso</th>
+                        <th>Último uso</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for device in devices %}
+
+                    <tr id="device-row-{{ device.id }}">
+
+                        <td>
+                            {{ device.user.name }}
+                        </td>
+
+                        <td>
+                            <code>
+                                {{ device.device_uuid }}
+                            </code>
+                        </td>
+
+                        <td>
+
+                            {% if device.status == "known" %}
+
+                                <span
+                                    class="badge bg-warning text-dark"
+                                    id="device-status-{{ device.id }}"
+                                >
+                                    Pendiente
+                                </span>
+
+                            {% elif device.status == "authorized" %}
+
+                                <span
+                                    class="badge bg-success"
+                                    id="device-status-{{ device.id }}"
+                                >
+                                    Autorizado
+                                </span>
+
+                            {% elif device.status == "blocked" %}
+
+                                <span
+                                    class="badge bg-danger"
+                                    id="device-status-{{ device.id }}"
+                                >
+                                    Bloqueado
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ device.first_seen.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+
+                        <td>
+                            {{ device.last_seen.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+
+                        <td>
+
+                            {% if device.status == "known" %}
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-success"
+                                    onclick="authorizeDevice({{ device.id }})"
+                                >
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Autorizar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="blockDevice({{ device.id }})"
+                                >
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Bloquear
+                                </button>
+
+                            {% elif device.status == "authorized" %}
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="blockDevice({{ device.id }})"
+                                >
+                                    <i class="bi bi-lock me-1"></i>
+                                    Bloquear
+                                </button>
+
+                            {% elif device.status == "blocked" %}
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-success"
+                                    onclick="authorizeDevice({{ device.id }})"
+                                >
+                                    <i class="bi bi-unlock me-1"></i>
+                                    Autorizar
+                                </button>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="text-center text-muted"
+                        >
+                            No hay dispositivos registrados.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -108,4 +267,91 @@
     </a>
 
 </div>
+
+<script>
+
+    function getCookie(name) {
+
+        const value = `; ${document.cookie}`;
+
+        const parts = value.split(`; ${name}=`);
+
+        if (parts.length === 2) {
+            return parts.pop().split(";").shift();
+        }
+
+        return null;
+    }
+
+
+    async function authorizeDevice(deviceId) {
+
+        const csrfToken =
+            getCookie("csrf_access_token");
+
+        const response = await fetch(
+            `/admin/audit/device/${deviceId}/authorize`,
+            {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": csrfToken
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            alert(
+                data.message ||
+                "No se pudo autorizar el dispositivo."
+            );
+
+            return;
+        }
+
+        location.reload();
+    }
+
+
+    async function blockDevice(deviceId) {
+
+        const confirmed = confirm(
+            "¿Está seguro de bloquear este dispositivo?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        const csrfToken =
+            getCookie("csrf_access_token");
+
+        const response = await fetch(
+            `/admin/audit/device/${deviceId}/block`,
+            {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": csrfToken
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            alert(
+                data.message ||
+                "No se pudo bloquear el dispositivo."
+            );
+
+            return;
+        }
+
+        location.reload();
+    }
+
+</script>
 {% endblock %}
