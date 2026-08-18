@@ -1,11 +1,20 @@
-from flask import Blueprint, jsonify, render_template, request
-from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app.config.extensions import db
-from app.models.mark import Mark
 from app.services.attendance_service import CreateMark, LastMark
+from app.services.device_service import (
+    get_device,
+    register_device,
+    update_device_last_seen,
+)
+from app.services.incident_service import CreateIncident
 
-attendance_bp = Blueprint("attendance", __name__, url_prefix="/attendance")
+attendance_bp = Blueprint(
+    "attendance",
+    __name__,
+    url_prefix="/attendance",
+)
 
 
 @attendance_bp.route("/mark", methods=["POST"])
@@ -24,32 +33,123 @@ def mark():
 
     if not device_uuid:
         return (
-            jsonify({"message": "El identificador del dispositivo es obligatorio."}),
+            jsonify(
+                {"message": ("El identificador del dispositivo " "es obligatorio.")}
+            ),
             400,
         )
+
     if latitude is None or longitude is None:
         return jsonify({"message": "La ubicación es obligatoria."}), 400
+
     if accuracy is None:
-        return jsonify({"message": "La precisión de la ubicación es obligatoria."}), 400
+        return (
+            jsonify({"message": ("La precisión de la ubicación " "es obligatoria.")}),
+            400,
+        )
+
+    device = get_device(device_uuid)
+
+    device_is_new = False
+
+    if device is None:
+
+        device = register_device(
+            user_id=user_id,
+            device_uuid=device_uuid,
+        )
+
+        device_is_new = True
+
+    else:
+        if device.user_id != int(user_id):
+
+            CreateIncident(
+                user_id=user_id,
+                description=(
+                    "Se intentó registrar asistencia "
+                    "utilizando un dispositivo asociado "
+                    "a otro usuario."
+                ),
+                severity="high",
+            )
+
+            db.session.commit()
+
+            return (
+                jsonify(
+                    {
+                        "message": (
+                            "No se puede registrar la asistencia "
+                            "desde este dispositivo."
+                        ),
+                        "device_status": "invalid",
+                    }
+                ),
+                403,
+            )
+
+        if device.status == "blocked":
+
+            CreateIncident(
+                user_id=user_id,
+                description=(
+                    "Se intentó registrar asistencia "
+                    "utilizando un dispositivo bloqueado."
+                ),
+                severity="high",
+            )
+
+            db.session.commit()
+
+            return (
+                jsonify(
+                    {
+                        "message": (
+                            "Este dispositivo está bloqueado "
+                            "y no puede registrar asistencia."
+                        ),
+                        "device_status": "blocked",
+                    }
+                ),
+                403,
+            )
+
+        update_device_last_seen(device)
+
     last_mark = LastMark(user_id)
     if last_mark is None or last_mark.type == "exit":
         mark_type = "entry"
     else:
         mark_type = "exit"
     new_mark = CreateMark(
-        user_id, mark_type, latitude, longitude, accuracy, device_uuid
+        user_id,
+        mark_type,
+        latitude,
+        longitude,
+        accuracy,
+        device_uuid,
     )
+    db.session.commit()
+    if device_is_new:
+        message = (
+            "Marca registrada correctamente. "
+            "El dispositivo ha sido registrado "
+            "y está pendiente de autorización."
+        )
+    else:
 
-    message = (
-        "Entrada registrada correctamente."
-        if mark_type == "entry"
-        else "Salida registrada correctamente."
-    )
+        message = (
+            "Entrada registrada correctamente."
+            if mark_type == "entry"
+            else "Salida registrada correctamente."
+        )
 
     return (
         jsonify(
             {
                 "message": message,
+                "device_status": device.status,
                 "mark": {
                     "id": new_mark.id,
                     "type": new_mark.type,
