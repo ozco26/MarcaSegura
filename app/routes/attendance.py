@@ -24,9 +24,7 @@ def mark():
     data = request.get_json()
 
     if not data:
-        return jsonify({
-            "message": "No se recibieron datos."
-        }), 400
+        return jsonify({"message": "No se recibieron datos."}), 400
 
     device_uuid = data.get("device_uuid")
     latitude = data.get("latitude")
@@ -34,25 +32,21 @@ def mark():
     accuracy = data.get("accuracy")
 
     if not device_uuid:
-        return jsonify({
-            "message": (
-                "El identificador del dispositivo "
-                "es obligatorio."
-            )
-        }), 400
+        return (
+            jsonify(
+                {"message": ("El identificador del dispositivo " "es obligatorio.")}
+            ),
+            400,
+        )
 
     if latitude is None or longitude is None:
-        return jsonify({
-            "message": "La ubicación es obligatoria."
-        }), 400
+        return jsonify({"message": "La ubicación es obligatoria."}), 400
 
     if accuracy is None:
-        return jsonify({
-            "message": (
-                "La precisión de la ubicación "
-                "es obligatoria."
-            )
-        }), 400
+        return (
+            jsonify({"message": ("La precisión de la ubicación " "es obligatoria.")}),
+            400,
+        )
 
     device = get_device(device_uuid)
 
@@ -82,13 +76,18 @@ def mark():
 
             db.session.commit()
 
-            return jsonify({
-                "message": (
-                    "No se puede registrar la asistencia "
-                    "desde este dispositivo."
+            return (
+                jsonify(
+                    {
+                        "message": (
+                            "No se puede registrar la asistencia "
+                            "desde este dispositivo."
+                        ),
+                        "device_status": "invalid",
+                    }
                 ),
-                "device_status": "invalid",
-            }), 403
+                403,
+            )
 
         if device.status == "blocked":
 
@@ -103,13 +102,18 @@ def mark():
 
             db.session.commit()
 
-            return jsonify({
-                "message": (
-                    "Este dispositivo está bloqueado "
-                    "y no puede registrar asistencia."
+            return (
+                jsonify(
+                    {
+                        "message": (
+                            "Este dispositivo está bloqueado "
+                            "y no puede registrar asistencia."
+                        ),
+                        "device_status": "blocked",
+                    }
                 ),
-                "device_status": "blocked",
-            }), 403
+                403,
+            )
 
         update_device_last_seen(device)
 
@@ -141,15 +145,20 @@ def mark():
             else "Salida registrada correctamente."
         )
 
-    return jsonify({
-        "message": message,
-        "device_status": device.status,
-        "mark": {
-            "id": new_mark.id,
-            "type": new_mark.type,
-            "latitude": new_mark.latitude,
-            "longitude": new_mark.longitude,
-            "accuracy": new_mark.accuracy,
-            "timestamp": new_mark.timestamp.isoformat(),
-        },
-    }), 201
+    return (
+        jsonify(
+            {
+                "message": message,
+                "device_status": device.status,
+                "mark": {
+                    "id": new_mark.id,
+                    "type": new_mark.type,
+                    "latitude": new_mark.latitude,
+                    "longitude": new_mark.longitude,
+                    "accuracy": new_mark.accuracy,
+                    "timestamp": new_mark.timestamp.isoformat(),
+                },
+            }
+        ),
+        201,
+    )

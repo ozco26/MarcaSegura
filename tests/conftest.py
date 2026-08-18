@@ -92,3 +92,36 @@ def authenticated_client(client, user):
     client.environ_base["HTTP_X_CSRF_TOKEN"] = csrf_token
 
     return client
+
+
+@pytest.fixture
+def employee_client(client, user):
+    user_obj = db.session.get(User, user)
+
+    user_obj.role = "employee"
+    db.session.commit()
+
+    response = client.post(
+        "/login",
+        data={
+            "email": "admin@test.com",
+            "password": "123456",
+        },
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+
+    csrf_token = None
+
+    for cookie in response.headers.getlist("Set-Cookie"):
+        if "csrf_access_token=" in cookie:
+            csrf_token = cookie.split("csrf_access_token=")[1]
+            csrf_token = csrf_token.split(";")[0]
+            break
+
+    assert csrf_token is not None
+
+    client.environ_base["HTTP_X_CSRF_TOKEN"] = csrf_token
+
+    return client

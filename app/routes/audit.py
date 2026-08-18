@@ -23,25 +23,14 @@ def admin_genral():
     query = Mark.query
 
     if user_id:
-        query = query.filter(
-            Mark.user_id == user_id
-        )
+        query = query.filter(Mark.user_id == user_id)
 
-    marks = (
-        query
-        .order_by(Mark.timestamp.desc())
-        .all()
-    )
+    marks = query.order_by(Mark.timestamp.desc()).all()
 
-    users = (
-        User.query
-        .order_by(User.name.asc())
-        .all()
-    )
+    users = User.query.order_by(User.name.asc()).all()
 
     devices = (
-        Device.query
-        .join(User)
+        Device.query.join(User)
         .filter(Device.status == "known")
         .order_by(Device.created_at.desc())
         .all()
@@ -69,10 +58,15 @@ def authorize_device(device_id):
 
     db.session.commit()
 
-    return jsonify({
-        "message": "Dispositivo autorizado correctamente.",
-        "device_status": device.status,
-    }), 200
+    return (
+        jsonify(
+            {
+                "message": "Dispositivo autorizado correctamente.",
+                "device_status": device.status,
+            }
+        ),
+        200,
+    )
 
 
 @audit_bp.route("/device/<int:device_id>/block", methods=["POST"])
@@ -88,10 +82,15 @@ def block_device(device_id):
 
     db.session.commit()
 
-    return jsonify({
-        "message": "Dispositivo bloqueado correctamente.",
-        "device_status": device.status,
-    }), 200
+    return (
+        jsonify(
+            {
+                "message": "Dispositivo bloqueado correctamente.",
+                "device_status": device.status,
+            }
+        ),
+        200,
+    )
 
 
 @audit_bp.route("/incidents")
@@ -101,12 +100,7 @@ def admin_incidents():
 
     from app.models.incident import Incident
 
-    incidents = (
-        Incident.query
-        .join(User)
-        .order_by(Incident.timestamp.desc())
-        .all()
-    )
+    incidents = Incident.query.join(User).order_by(Incident.timestamp.desc()).all()
 
     return render_template(
         "admin/incidents.html",

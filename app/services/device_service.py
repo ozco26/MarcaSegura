@@ -4,14 +4,11 @@ from zoneinfo import ZoneInfo
 from app.config.extensions import db
 from app.models.device import Device
 
-
 COSTA_RICA_TZ = ZoneInfo("America/Costa_Rica")
 
 
 def get_device(device_uuid):
-    return Device.query.filter_by(
-        device_uuid=device_uuid
-    ).first()
+    return Device.query.filter_by(device_uuid=device_uuid).first()
 
 
 def register_device(user_id, device_uuid):
