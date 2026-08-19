@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager
 
 from app import models  ##para que jale las migraciones
 from app.config.config import Config
-from app.config.extensions import db, jwt, migrate
+from app.config.extensions import db, jwt, mail, migrate
 from app.routes.attendance import attendance_bp
 from app.routes.audit import audit_bp
 from app.routes.users import users_bp
@@ -18,6 +18,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    mail.init_app(app)
 
     app.register_blueprint(web_auth_bp)
     app.register_blueprint(users_bp)
