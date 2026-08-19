@@ -23,6 +23,8 @@ class User(db.Model):
 
     exit_time = db.Column(db.Time, nullable=False)
 
+    failed_login_attempts = db.Column(db.Integer, nullable=False, default=0)
+
     created_at = db.Column(
         db.DateTime,
         nullable=False,

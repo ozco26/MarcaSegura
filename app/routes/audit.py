@@ -5,7 +5,7 @@ from app.models.device import Device
 from app.models.mark import Mark
 from app.models.user import User
 from app.services.decoradors import admin_required
-
+from app.services.email_service import notify_employee_device_blocked
 audit_bp = Blueprint(
     "audit",
     __name__,
@@ -82,6 +82,8 @@ def block_device(device_id):
 
     db.session.commit()
 
+    notify_employee_device_blocked(device.user, device)
+
     return (
         jsonify(
             {
@@ -91,7 +93,6 @@ def block_device(device_id):
         ),
         200,
     )
-
 
 @audit_bp.route("/incidents")
 @jwt_required()

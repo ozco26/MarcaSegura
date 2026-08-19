@@ -1,14 +1,22 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app.config.extensions import db
+from app.models.user import User
 from app.services.attendance_service import CreateMark, LastMark
 from app.services.device_service import (
     get_device,
     register_device,
     update_device_last_seen,
 )
+from app.services.email_service import notify_admins_unusual_location
 from app.services.incident_service import CreateIncident
+from app.services.location_service import is_unusual_location
+
+COSTA_RICA_TZ = ZoneInfo("America/Costa_Rica")
 
 attendance_bp = Blueprint(
     "attendance",
@@ -118,10 +126,37 @@ def mark():
         update_device_last_seen(device)
 
     last_mark = LastMark(user_id)
+
+    current_timestamp = datetime.now(COSTA_RICA_TZ)
+
+    is_unusual, distance_km = is_unusual_location(
+        last_mark, latitude, longitude, current_timestamp
+    )
+
+    if is_unusual:
+        alert_user = User.query.get(int(user_id))
+
+        CreateIncident(
+            user_id=user_id,
+            description=(
+                f"Marca de asistencia desde una ubicación inusual. "
+                f"Distancia respecto a la última marca: {distance_km} km."
+            ),
+            severity="medium",
+        )
+
+        notify_admins_unusual_location(
+            alert_user,
+            f"Distancia de {distance_km} km respecto a la última marca "
+            f"registrada, en un lapso de tiempo poco realista para ese "
+            f"desplazamiento.",
+        )
+
     if last_mark is None or last_mark.type == "exit":
         mark_type = "entry"
     else:
         mark_type = "exit"
+
     new_mark = CreateMark(
         user_id,
         mark_type,
