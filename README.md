@@ -10,6 +10,17 @@ Sistema web de control de asistencia con marcas geolocalizadas. Cada entrada o s
 
 ---
 
+## Capturas
+
+![Panel del administrador](docs/screenshots/admin-dashboard.png)
+*Panel del administrador*
+
+| Panel del empleado: registro de marca e historial | Auditoría: dispositivos pendientes y marcas con ubicación y precisión del GPS | Incidentes detectados automáticamente, con su severidad |
+|---|---|---|
+| ![Panel del empleado: registro de marca e historial](docs/screenshots/empleado.png) | ![Auditoría: dispositivos pendientes y marcas con ubicación y precisión del GPS](docs/screenshots/auditoria.png) | ![Incidentes detectados automáticamente, con su severidad](docs/screenshots/incidentes.png) |
+
+> Capturas de las vistas reales del proyecto, generadas con datos de ejemplo.
+
 ## Qué hace
 
 **Para el empleado**
